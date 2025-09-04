@@ -72,25 +72,22 @@ npm run test:watch
 Copy `.env.example` to `.env` and configure:
 
 ```bash
-# Database
-DATABASE_HOST=localhost
-DATABASE_PORT=5432
-DATABASE_NAME=bookmarks
-DATABASE_USER=your_user
-DATABASE_PASSWORD=your_password
-
-# AWS
+# AWS Configuration
 AWS_REGION=us-east-1
+AWS_PROFILE=your-aws-profile
+
+# Bedrock Configuration  
 BEDROCK_MODEL_ID=anthropic.claude-3-haiku-20240307-v1:0
 
-# Slack
+# Slack Configuration
 SLACK_BOT_TOKEN=xoxb-your-bot-token
 SLACK_SIGNING_SECRET=your-signing-secret
 
-# Lambda Function Names
-LAMBDA_PUBLIC_NAME=bookmark-bot-public
-LAMBDA_PRIVATE_NAME=bookmark-bot-private
+# Lambda Function Name (for scripts only)
+LAMBDA_PRIVATE_NAME=bookmark-bot-private-development
 ```
+
+**Note**: Database configuration is handled automatically via AWS Secrets Manager in the deployed environment. No manual database setup is required.
 
 ### Package Scripts
 
