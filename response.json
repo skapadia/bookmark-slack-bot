@@ -1,0 +1,1 @@
+{"errorType":"TypeError","errorMessage":"Cannot convert undefined or null to object","trace":["TypeError: Cannot convert undefined or null to object","    at Function.keys (<anonymous>)","    at AwsLambdaReceiver2.getHeaderValue (file:///var/task/index.mjs:49202:43)","    at file:///var/task/index.mjs:49087:60","    at Runtime.handler (file:///var/task/index.mjs:94189:10)"]}

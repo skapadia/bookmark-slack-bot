@@ -10,15 +10,20 @@ import type {
   GetSeedTagsPayload,
   GetExistingTagsPayload,
   GetPopularTagsPayload,
-  DeleteBookmarkPayload
+  DeleteBookmarkPayload,
+  CreateBookmarkCompletePayload
 } from '@bookmark-slack-bot/api-contracts';
 import { PostgresBookmarkRepository } from '../implementations/postgres-bookmark-repository.js';
+import { SophisticatedBedrockTagGenerator } from '../implementations/sophisticated-bedrock-tag-generator.js';
+import { CompleteBookmarkService } from '../implementations/complete-bookmark-service.js';
 import { createServiceLogger } from '@bookmark-slack-bot/shared';
 
 const logger = createServiceLogger('database-handler');
 
-// Initialize repository
+// Initialize repository and services
 const bookmarkRepository = new PostgresBookmarkRepository();
+const tagGenerator = new SophisticatedBedrockTagGenerator(bookmarkRepository);
+const completeBookmarkService = new CompleteBookmarkService(bookmarkRepository, tagGenerator);
 
 export const handler: Handler<LambdaRequest, LambdaResponse> = async (event: LambdaRequest): Promise<LambdaResponse> => {
   logger.info({ operation: event.operation }, 'Database Lambda invoked');
@@ -92,6 +97,12 @@ export const handler: Handler<LambdaRequest, LambdaResponse> = async (event: Lam
           payload.id,
           payload.userId
         );
+        break;
+      }
+
+      case 'createBookmarkComplete': {
+        const payload = event.payload as CreateBookmarkCompletePayload;
+        result = await completeBookmarkService.createBookmarkComplete(payload);
         break;
       }
 
