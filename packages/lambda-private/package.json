@@ -8,8 +8,6 @@
     "build": "tsc --build",
     "clean": "rm -rf dist *.tsbuildinfo",
     "dev": "tsc --build --watch",
-    "test": "vitest run",
-    "test:watch": "vitest",
     "type-check": "tsc --noEmit",
     "lint": "eslint src --max-warnings 10"
   },
@@ -22,7 +20,6 @@
   },
   "devDependencies": {
     "typescript": "^5.0.0",
-    "vitest": "^1.0.0",
     "@types/node": "^20.0.0",
     "@types/pg": "^8.10.0",
     "@types/aws-lambda": "^8.10.0"

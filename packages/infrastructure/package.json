@@ -8,8 +8,6 @@
     "build": "tsc --build",
     "clean": "rm -rf dist *.tsbuildinfo",
     "dev": "tsc --build --watch",
-    "test": "vitest run",
-    "test:watch": "vitest",
     "type-check": "tsc --noEmit",
     "lint": "eslint src --max-warnings 10",
     "cdk": "cdk",
@@ -31,8 +29,7 @@
     "@types/node": "^20.0.0",
     "aws-cdk": "^2.116.0",
     "dotenv": "^17.2.2",
-    "typescript": "^5.0.0",
-    "vitest": "^1.0.0"
+    "typescript": "^5.0.0"
   },
   "engines": {
     "node": ">=20.0.0"
