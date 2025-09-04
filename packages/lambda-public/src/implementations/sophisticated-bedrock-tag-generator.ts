@@ -2,9 +2,9 @@ import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedroc
 import type { TagGenerator, BookmarkRepository } from '@bookmark-slack-bot/core/interfaces';
 import { BedrockError, logger } from '@bookmark-slack-bot/shared';
 import { bedrockConfig } from '@bookmark-slack-bot/shared/config';
-// @ts-ignore - fuzzball doesn't have types but works fine
+// @ts-expect-error - fuzzball doesn't have types but works fine
 import * as fuzz from 'fuzzball';
-// @ts-ignore - wink-lemmatizer doesn't have types but works fine
+// @ts-expect-error - wink-lemmatizer doesn't have types but works fine
 import * as lemmatizer from 'wink-lemmatizer';
 
 export class SophisticatedBedrockTagGenerator implements TagGenerator {
@@ -429,7 +429,7 @@ Return only the useful tags as a JSON array. If a tag is borderline, err on the 
     const stopWords = ['the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'had', 'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his', 'how', 'its', 'may', 'new', 'now', 'old', 'see', 'two', 'who', 'boy', 'did', 'does', 'let', 'put', 'say', 'she', 'too', 'use'];
     
     return text.toLowerCase()
-      .split(/[\s\/\-_.,!?():]+/)
+      .split(/[\s/-_.,!?():]+/)
       .filter(word => word.length > 2)
       .filter(word => !stopWords.includes(word))
       .filter(word => !word.match(/^\d+$/)); // Remove numbers
