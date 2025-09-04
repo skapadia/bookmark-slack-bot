@@ -1,0 +1,39 @@
+{
+  "name": "@bookmark-slack-bot/infrastructure",
+  "version": "1.0.0",
+  "description": "AWS CDK infrastructure for bookmark slack bot",
+  "type": "module",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc --build",
+    "clean": "rm -rf dist *.tsbuildinfo",
+    "dev": "tsc --build --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src --max-warnings 0",
+    "cdk": "cdk",
+    "synth": "npm run build && cdk synth",
+    "deploy": "npm run build && cdk deploy",
+    "deploy:dev": "npm run build && cdk deploy --context environment=development",
+    "deploy:staging": "npm run build && cdk deploy --context environment=staging", 
+    "deploy:prod": "npm run build && cdk deploy --context environment=production",
+    "destroy": "cdk destroy",
+    "diff": "npm run build && cdk diff",
+    "bootstrap": "cdk bootstrap"
+  },
+  "dependencies": {
+    "@bookmark-slack-bot/shared": "*",
+    "aws-cdk-lib": "^2.116.0",
+    "constructs": "^10.3.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0",
+    "@types/node": "^20.0.0",
+    "aws-cdk": "^2.116.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

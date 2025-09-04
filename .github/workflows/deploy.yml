@@ -1,0 +1,120 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main        # Deploy to production
+      - develop     # Deploy to development
+      - staging     # Deploy to staging
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'development'
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    # Set environment based on branch or manual input
+    environment: ${{ 
+      github.event.inputs.environment || 
+      (github.ref == 'refs/heads/main' && 'production') || 
+      (github.ref == 'refs/heads/staging' && 'staging') || 
+      'development' 
+    }}
+    
+    permissions:
+      id-token: write   # Required for OIDC
+      contents: read
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Verify build
+        run: npm run verify-build
+        
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+          
+      - name: Install CDK CLI
+        run: npm install -g aws-cdk
+        
+      - name: CDK Bootstrap (if needed)
+        run: |
+          cd packages/infrastructure
+          npm run bootstrap
+        
+      - name: Deploy Infrastructure
+        run: |
+          cd packages/infrastructure
+          case "${{ 
+            github.event.inputs.environment || 
+            (github.ref == 'refs/heads/main' && 'production') || 
+            (github.ref == 'refs/heads/staging' && 'staging') || 
+            'development' 
+          }}" in
+            production)
+              npm run deploy:prod
+              ;;
+            staging)
+              npm run deploy:staging
+              ;;
+            *)
+              npm run deploy:dev
+              ;;
+          esac
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_SIGNING_SECRET: ${{ secrets.SLACK_SIGNING_SECRET }}
+          BEDROCK_MODEL_ID: ${{ vars.BEDROCK_MODEL_ID || 'anthropic.claude-3-haiku-20240307-v1:0' }}
+          
+      - name: Initialize Database
+        run: |
+          case "${{ 
+            github.event.inputs.environment || 
+            (github.ref == 'refs/heads/main' && 'production') || 
+            (github.ref == 'refs/heads/staging' && 'staging') || 
+            'development' 
+          }}" in
+            production)
+              npm run init-db:prod
+              ;;
+            staging)
+              npm run init-db:staging
+              ;;
+            *)
+              npm run init-db:dev
+              ;;
+          esac
+        
+      - name: Post-deployment verification
+        run: |
+          echo "Deployment completed successfully!"
+          echo "Environment: ${{ 
+            github.event.inputs.environment || 
+            (github.ref == 'refs/heads/main' && 'production') || 
+            (github.ref == 'refs/heads/staging' && 'staging') || 
+            'development' 
+          }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"

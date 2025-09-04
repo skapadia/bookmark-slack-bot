@@ -1,0 +1,1 @@
+export { handler } from './handlers/database-handler.js';

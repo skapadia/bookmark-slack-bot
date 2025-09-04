@@ -1,0 +1,65 @@
+{
+  "name": "bookmark-slack-bot",
+  "version": "1.0.0",
+  "description": "AI-powered Slack bookmark agent with dual Lambda architecture",
+  "type": "module",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "test:integration": "vitest run tests/integration",
+    "test:e2e": "vitest run tests/e2e",
+    "lint": "npm run lint --workspaces --if-present",
+    "type-check": "npm run type-check --workspaces --if-present",
+    "clean": "npm run clean --workspaces --if-present",
+    "dev": "npm run dev --workspaces --if-present",
+    "deploy:dev": "./scripts/deploy.sh dev",
+    "deploy:prod": "./scripts/deploy.sh prod",
+    "setup": "./scripts/setup.sh",
+    "init-db": "node scripts/init-database.js",
+    "init-db:dev": "LAMBDA_PRIVATE_NAME=bookmark-bot-private-development node scripts/init-database.js",
+    "init-db:staging": "LAMBDA_PRIVATE_NAME=bookmark-bot-private-staging node scripts/init-database.js",
+    "init-db:prod": "LAMBDA_PRIVATE_NAME=bookmark-bot-private-production node scripts/init-database.js",
+    "verify-build": "node scripts/verify-build.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-lambda": "^3.490.0",
+    "fuzzball": "^2.2.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.34.0",
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "@vitest/ui": "^1.0.0",
+    "eslint": "^8.57.1",
+    "globals": "^16.3.0",
+    "jiti": "^2.5.1",
+    "prettier": "^3.0.0",
+    "typescript": "^5.0.0",
+    "typescript-eslint": "^8.42.0",
+    "vitest": "^1.0.0"
+  },
+  "keywords": [
+    "slack",
+    "bookmark",
+    "ai",
+    "lambda",
+    "aws",
+    "bedrock",
+    "typescript"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github-chariotsolutions:chariotsolutions/bookmark-slack-bot.git"
+  },
+  "license": "MIT",
+  "author": "Chariot Solutions"
+}

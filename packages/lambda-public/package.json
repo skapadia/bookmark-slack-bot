@@ -1,0 +1,36 @@
+{
+  "name": "@bookmark-slack-bot/lambda-public",
+  "version": "1.0.0",
+  "description": "Public Lambda function for Slack event handling",
+  "type": "module",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc --build",
+    "clean": "rm -rf dist *.tsbuildinfo",
+    "dev": "tsc --build --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src --max-warnings 10"
+  },
+  "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.490.0",
+    "@aws-sdk/client-lambda": "^3.490.0",
+    "@bookmark-slack-bot/api-contracts": "*",
+    "@bookmark-slack-bot/core": "*",
+    "@bookmark-slack-bot/shared": "*",
+    "@slack/bolt": "^3.17.0",
+    "fuzzball": "^2.1.2",
+    "node-fetch": "^3.3.0",
+    "wink-lemmatizer": "^3.0.4"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
