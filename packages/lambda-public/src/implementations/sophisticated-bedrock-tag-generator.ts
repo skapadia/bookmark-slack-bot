@@ -2,7 +2,6 @@ import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedroc
 import type { TagGenerator, BookmarkRepository } from '@bookmark-slack-bot/core/interfaces';
 import { BedrockError, logger } from '@bookmark-slack-bot/shared';
 import { bedrockConfig } from '@bookmark-slack-bot/shared/config';
-// @ts-expect-error - fuzzball doesn't have types but works fine
 import * as fuzz from 'fuzzball';
 // @ts-expect-error - wink-lemmatizer doesn't have types but works fine
 import * as lemmatizer from 'wink-lemmatizer';
