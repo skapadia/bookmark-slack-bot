@@ -58,3 +58,8 @@ cdk.context.json
 # Slack
 .slack/apps.dev.json
 .slack/credentials.json
+
+# Backup files
+*.bak
+*.backup
+*~
