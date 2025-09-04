@@ -58,7 +58,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git@github-chariotsolutions:chariotsolutions/bookmark-slack-bot.git"
+    "url": "git@github-chariotsolutions:skapadia/bookmark-slack-bot.git"
   },
   "license": "MIT",
   "author": "Chariot Solutions"
