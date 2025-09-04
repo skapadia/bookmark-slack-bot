@@ -26,6 +26,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
         
+      - name: Build
+        run: npm run build
+        
       - name: Type check
         run: npm run type-check
         
@@ -34,9 +37,6 @@ jobs:
         
       - name: Test
         run: npm run test
-        
-      - name: Build
-        run: npm run build
 
   security:
     runs-on: ubuntu-latest
