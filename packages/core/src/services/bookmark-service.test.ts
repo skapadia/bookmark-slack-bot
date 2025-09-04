@@ -85,14 +85,23 @@ describe('BookmarkService', () => {
       expect(mockMetadataExtractor.extractMetadata).toHaveBeenCalledWith('https://example.com');
       expect(mockTagGenerator.generateTags).toHaveBeenCalledWith(
         'Example Tutorial A great JavaScript tutorial',
-        ['react', 'javascript', 'node']
+        ['react', 'javascript', 'node'],
+        {
+          url: 'https://example.com',
+          title: 'Example Tutorial',
+          description: 'A great JavaScript tutorial',
+          teamId: 'user123',
+          manualTags: ['javascript', 'tutorial']
+        }
       );
       expect(mockRepository.save).toHaveBeenCalledWith({
         url: 'https://example.com',
         title: 'Example Tutorial',
         description: 'A great JavaScript tutorial',
         tags: ['javascript', 'tutorial', 'react', 'frontend'], // Manual + generated, deduplicated
+        manualTags: ['javascript', 'tutorial'],
         userId: 'user123',
+        teamId: 'user123',
         channelId: 'channel123'
       });
     });
@@ -185,7 +194,9 @@ describe('BookmarkService', () => {
         title: 'Test',
         description: 'Test desc',
         tags: ['javascript', 'tutorial', 'react', 'frontend'], // Deduplicated
+        manualTags: ['javascript', 'tutorial', 'react'],
         userId: 'user123',
+        teamId: 'user123',
         channelId: 'channel123'
       });
     });
