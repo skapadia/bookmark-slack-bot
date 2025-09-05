@@ -147,7 +147,7 @@ The database schema is automatically initialized when you run the init commands 
 ### Slack Commands
 
 - `/bookmark <URL>` - Save a bookmark with AI-generated tags
-- `/bookmark <URL> tag1 tag2` - Save a bookmark with manual tags (combined with AI tags)
+- `/bookmark <URL> tag1 tag2 ... tagN` - Save a bookmark with manual tags (combined with AI tags)
 - `/bookmarks` - Show your recent bookmarks  
 - `/bookmarks search term` - Search your bookmarks by title, description, tags, or URL
 - `/bookmark-help` - Display help information
@@ -157,11 +157,9 @@ The database schema is automatically initialized when you run the init commands 
 ```
 /bookmark https://docs.aws.amazon.com/lambda/
 /bookmark https://react.dev/ react javascript frontend tutorial
-/bookmarks react
-/bookmarks AWS Lambda performance
 ```
 
-## Testing
+## Testing - INCOMPLETE
 
 - **Unit Tests**: Vitest with coverage reporting across all packages
 - **Integration Tests**: Real AWS service testing in development environment
