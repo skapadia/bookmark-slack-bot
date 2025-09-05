@@ -402,7 +402,9 @@ Return only the useful tags as a JSON array. If a tag is borderline, err on the 
           logger.debug({ matchType, keyword, tag, oldScore, newScore }, 'Tag match found');
         }
       }
-      
+
+      // TODO: The nested loop for fuzzy matching performs O(keywords × existingTags) fuzzy comparisons, 
+      // which could be expensive with large tag sets. Consider implementing early exit or limiting comparisons
       // Fuzzy matches (lower priority, higher threshold)
       for (const tag of existingTags) {
         if (!tagScores.has(tag)) { // Don't override exact matches

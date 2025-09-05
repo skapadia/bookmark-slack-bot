@@ -16,7 +16,8 @@ export type PrivateLambdaOperation =
   | 'initializeSchema'
   | 'getRecentBookmarks'
   | 'getExistingTags'
-  | 'getPopularTags';
+  | 'getPopularTags'
+  | 'createBookmarkComplete';
 
 // Specific payload interfaces for type safety
 export interface SaveBookmarkPayload extends Omit<Bookmark, 'id' | 'createdAt' | 'updatedAt'> {}
@@ -57,6 +58,16 @@ export interface DeleteBookmarkPayload {
   userId: string;
 }
 
+export interface CreateBookmarkCompletePayload {
+  url: string;
+  title: string;
+  description: string;
+  userId: string;
+  teamId: string;
+  channelId: string;
+  manualTags?: string[];
+}
+
 // Union type for all possible payloads
 export type LambdaPayload = 
   | SaveBookmarkPayload
@@ -67,7 +78,8 @@ export type LambdaPayload =
   | GetSeedTagsPayload
   | GetExistingTagsPayload
   | GetPopularTagsPayload
-  | DeleteBookmarkPayload;
+  | DeleteBookmarkPayload
+  | CreateBookmarkCompletePayload;
 
 // Generic Lambda request/response types
 export interface LambdaRequest<T = LambdaPayload> {

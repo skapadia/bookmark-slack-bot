@@ -1,10 +1,7 @@
 import { App, AwsLambdaReceiver } from '@slack/bolt';
 import type { Handler, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import type { BookmarkCreateRequest } from '@bookmark-slack-bot/shared/types';
-import { BookmarkService } from '@bookmark-slack-bot/core/services';
-import { SophisticatedBedrockTagGenerator } from '../implementations/sophisticated-bedrock-tag-generator.js';
+import type { CreateBookmarkCompletePayload } from '@bookmark-slack-bot/api-contracts/lambda';
 import { WebMetadataExtractor } from '../implementations/web-metadata-extractor.js';
-import { LambdaBookmarkRepository } from '../implementations/lambda-bookmark-repository.js';
 import { validateUrl, createServiceLogger, slackConfig } from '@bookmark-slack-bot/shared';
 import { LambdaClient, InvokeCommand } from '@aws-sdk/client-lambda';
 
@@ -29,16 +26,7 @@ const lambdaClient = new LambdaClient({ region: process.env.AWS_REGION || 'us-ea
 let currentLambdaContext: any = null;
 
 // Initialize implementations
-const bookmarkRepository = new LambdaBookmarkRepository();
-const tagGenerator = new SophisticatedBedrockTagGenerator(bookmarkRepository);
-const metadataExtractor = new WebMetadataExtractor();
-
-// Initialize service
-const bookmarkService = new BookmarkService(
-  bookmarkRepository,
-  metadataExtractor,
-  tagGenerator
-);
+const metadataExtractor = new WebMetadataExtractor(); // Needed for metadata extraction
 
 // Initialize Slack app with Lambda receiver
 const awsLambdaReceiver = new AwsLambdaReceiver({
@@ -125,7 +113,27 @@ app.command('/bookmarks', async ({ command, ack, respond }) => {
       limit: 10
     };
 
-    const results = await bookmarkService.searchBookmarks(searchFilters);
+    // Call private Lambda for search operation
+    const privateLambdaResponse = await lambdaClient.send(new InvokeCommand({
+      FunctionName: process.env.LAMBDA_PRIVATE_NAME || 'bookmark-bot-private-development',
+      InvocationType: 'RequestResponse',
+      Payload: JSON.stringify({
+        operation: 'searchBookmarks',
+        payload: searchFilters
+      })
+    }));
+
+    if (!privateLambdaResponse.Payload) {
+      throw new Error('No response from private Lambda');
+    }
+
+    const responseBody = JSON.parse(Buffer.from(privateLambdaResponse.Payload).toString());
+    
+    if (!responseBody.success) {
+      throw new Error(`Private Lambda error: ${responseBody.error}`);
+    }
+
+    const results = responseBody.data;
 
     if (results.bookmarks.length === 0) {
       const searchText = command.text?.trim();
@@ -281,15 +289,40 @@ async function processBookmarkAsync(event: AsyncBookmarkEvent): Promise<void> {
     const url = parts[0];
     const manualTags = parts.slice(1).filter(tag => tag.length > 0);
 
-    const request: BookmarkCreateRequest = {
+    // Extract metadata (keep this in public Lambda)
+    const metadata = await metadataExtractor.extractMetadata(url);
+    
+    // Single call to private Lambda with complete data
+    const createBookmarkPayload: CreateBookmarkCompletePayload = {
       url,
+      title: metadata.title,
+      description: metadata.description,
       userId: command.user_id,
       teamId: command.team_id,
       channelId: command.channel_id,
-      manualTags
+      ...(manualTags.length > 0 && { manualTags })
     };
 
-    const bookmark = await bookmarkService.createBookmark(request);
+    const privateLambdaResponse = await lambdaClient.send(new InvokeCommand({
+      FunctionName: process.env.LAMBDA_PRIVATE_NAME || 'bookmark-bot-private-development',
+      InvocationType: 'RequestResponse', // Synchronous call to private Lambda
+      Payload: JSON.stringify({
+        operation: 'createBookmarkComplete',
+        payload: createBookmarkPayload
+      })
+    }));
+
+    if (!privateLambdaResponse.Payload) {
+      throw new Error('No response from private Lambda');
+    }
+
+    const responseBody = JSON.parse(Buffer.from(privateLambdaResponse.Payload).toString());
+    
+    if (!responseBody.success) {
+      throw new Error(`Private Lambda error: ${responseBody.error}`);
+    }
+
+    const bookmark = responseBody.data;
 
     // Send success response back to Slack using response_url
     const response = await fetch(command.response_url, {

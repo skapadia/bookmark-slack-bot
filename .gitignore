@@ -63,3 +63,6 @@ cdk.context.json
 *.bak
 *.backup
 *~
+
+# Debug files
+response.json

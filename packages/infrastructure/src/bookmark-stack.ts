@@ -26,6 +26,7 @@ export class BookmarkStack extends cdk.Stack {
     super(scope, id, props);
 
     const { environment } = props;
+    const bedrockModelId = process.env.BEDROCK_MODEL_ID || 'anthropic.claude-3-haiku-20240307-v1:0';
 
     // Create VPC with cost-optimized dual Lambda architecture
     // No NAT Gateway = saves $50+ per month
@@ -76,6 +77,14 @@ export class BookmarkStack extends cdk.Stack {
       securityGroups: [this.privateLambdaSG],
     });
 
+    this.vpc.addInterfaceEndpoint('BedrockVpcEndpoint', {
+      service: ec2.InterfaceVpcEndpointAwsService.BEDROCK_RUNTIME,
+      subnets: {
+        subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+      },
+      securityGroups: [this.privateLambdaSG],
+    });
+
     // RDS PostgreSQL Database
     this.database = new rds.DatabaseInstance(this, 'BookmarkDatabase', {
       engine: rds.DatabaseInstanceEngine.postgres({
@@ -104,8 +113,8 @@ export class BookmarkStack extends cdk.Stack {
       entry: '../lambda-private/src/index.ts',
       handler: 'handler',
       runtime: lambda.Runtime.NODEJS_20_X,
-      timeout: cdk.Duration.seconds(30),
-      memorySize: 256,
+      timeout: cdk.Duration.seconds(45),
+      memorySize: 1024,
       vpc: this.vpc as ec2.IVpc,
       vpcSubnets: {
         subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
@@ -115,6 +124,12 @@ export class BookmarkStack extends cdk.Stack {
         NODE_ENV: environment,
         LOG_LEVEL: process.env.LOG_LEVEL || 'info',
         DATABASE_SECRET_ARN: this.database.secret!.secretArn,
+        BEDROCK_MODEL_ID: bedrockModelId,
+        // Add required env vars even though private Lambda doesn't use them
+        // TODO: Refactor shared config to have separate schemas per Lambda
+        LAMBDA_PRIVATE_NAME: `bookmark-bot-private-${environment}`,
+        SLACK_BOT_TOKEN: process.env.SLACK_BOT_TOKEN || 'unused',
+        SLACK_SIGNING_SECRET: process.env.SLACK_SIGNING_SECRET || 'unused',
       },
       bundling: {
         minify: environment === 'production',
@@ -137,6 +152,15 @@ export class BookmarkStack extends cdk.Stack {
       ],
       resources: [
         this.database.secret!.secretArn
+      ]
+    }));
+
+    // Grant private Lambda access to Bedrock for AI tag generation
+    this.privateLambda.addToRolePolicy(new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: ['bedrock:InvokeModel'],
+      resources: [
+        `arn:aws:bedrock:${this.region}::foundation-model/${bedrockModelId}`
       ]
     }));
 
@@ -193,7 +217,6 @@ export class BookmarkStack extends cdk.Stack {
     }));
 
     // Grant specific Bedrock model access to public Lambda
-    const bedrockModelId = process.env.BEDROCK_MODEL_ID || 'anthropic.claude-3-haiku-20240307-v1:0';
     this.publicLambda.addToRolePolicy(new iam.PolicyStatement({
       effect: iam.Effect.ALLOW,
       actions: [
