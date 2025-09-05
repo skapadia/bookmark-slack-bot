@@ -9,9 +9,8 @@ A Slack bot for bookmarking URLs with AI-powered tag generation, featuring a dua
 - 🔍 **Intelligent Tag Matching**: Fuzzy matching, grammatical variation detection (singular/plural, verb forms), and contextual keyword scoring
 - 🔗 **Smart Web Scraping**: Extracts metadata from URLs with fallback handling and size limits
 - 🏗️ **Clean Architecture**: Separation of concerns with dependency injection and interface segregation
-- 🔐 **Secure VPC Design**: Private Lambda in VPC with Bedrock VPC endpoint for secure AI access
-- 📊 **Comprehensive Logging**: Structured logging with request tracing throughout the application
-- 🚀 **Production Ready**: GitHub Actions CI/CD with automated testing, linting, and multi-environment deployment
+- 🔐 **Secure VPC Design**: Private Lambda in VPC with access to Secrets Manager and Bedrock via VPC endpoints, and RDS in a private subnet.
+- 📊 **Logging**: Structured logging with the Pino library.
 
 ## Architecture
 
