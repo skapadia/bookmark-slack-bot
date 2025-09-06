@@ -66,28 +66,36 @@ npm run init-db:prod
    ```
 4. **Required OAuth Scopes:**
    - `app_mentions:read`
-   - `channels:history`
    - `chat:write`
    - `commands`
 
-5. **Slash Commands:** Create these commands:
+5. **Enable Event Subscriptions:**
+   - Subscribe to `app_mention` events
+   - Use the same Request URL as above
+
+6. **Slash Commands:** Create these commands:
    - `/bookmark` - Description: "Save a bookmark"
    - `/bookmarks` - Description: "Search your bookmarks"  
    - `/bookmark-help` - Description: "Show bookmark help"
 
 ## Architecture Overview
 
-### Dual Lambda Architecture
-- **Public Lambda**: Handles Slack events, Bedrock AI, web scraping (outside VPC)
-- **Private Lambda**: Database operations only (inside VPC)
+### Dual Lambda Architecture  
+- **Public Lambda**: Handles Slack events and web scraping (outside VPC)
+- **Private Lambda**: Database operations and AI tag generation via Bedrock (inside VPC)
+
+### Performance Benefits
+- **Single-Call Pattern**: Reduced from 3-4 Lambda calls to 1 call per bookmark creation
+- **Consolidated Business Logic**: All bookmark processing happens in private Lambda
+- **VPC Endpoints**: Secure AI access without internet routing reduces latency
 
 ### AWS Resources Created
 - **VPC**: Custom VPC with public and private subnets (no NAT Gateway)
 - **RDS**: PostgreSQL database in private subnets
-- **Lambda**: Two functions with proper IAM roles
+- **Lambda**: Two functions with proper IAM roles and Bedrock permissions
 - **API Gateway**: REST API for Slack webhook
 - **Secrets Manager**: Database credentials
-- **VPC Endpoint**: Secrets Manager access
+- **VPC Endpoints**: Secrets Manager and Bedrock Runtime access for private Lambda
 
 ### Cost Optimization
 - **No NAT Gateway**: Saves ~$45/month per AZ
